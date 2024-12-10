@@ -5,6 +5,8 @@
 /// Demo the borrow checker with refernces
 /// Demo derived from [rust by example (borrowing section)](https://doc.rust-lang.org/rust-by-example/scope/borrow/alias.html)
 ///
+/// Nice [visualization](https://doc.rust-lang.org/rust-by-example/scope/lifetime.html) of lifetimes
+///
 /// Borrowing Rules
 /// - Data can be immutably borrowed any number of times.
 /// - Data can be mutably borrowed only once at a time i.e. there is exactly this one mutable reference.
@@ -122,9 +124,42 @@ fn demo_moved_ownership() {
     //println!("b contains: {}", b);
 }
 
+/// You can return references from functions.
+/// However, if there is more than one input reference,
+/// the return value must have the same lifetime as the input references.
+/// Rust *could* infer the lifetimes, but it is cautious and does not.
+fn find_max<'l>(a: &'l i32, b: &'l i32) -> &'l i32 {
+    if a > b {
+        a
+    } else {
+        b
+    }
+}
+
+/// You can return references from mutably borrowing functions
+/// However, if there is more than one input reference,
+/// we need to specify the lifetime of the return value.
+/// Here, we have to specify that the return value has the same lifetime as the input reference `a`.
+fn only_mutate_a<'l>(a: &'l mut i32, b: &i32) -> &'l i32 {
+    *a += *b;
+    a
+}
+
+fn demo_lifetime_annotations() {
+    let x = 5_i32;
+    let y = -58_i32;
+
+    println!("Larger value is {}", find_max(&x, &y));
+
+    let mut z = 45_i32;
+    println!("Mutated value is {}", only_mutate_a(&mut z, &y));
+
+}
+
 fn main() {
     demo_raii_is_enforced();
     demo_by_value_for_primitives();
     demo_moved_ownership();
     demo_references();
+    demo_lifetime_annotations();
 }
